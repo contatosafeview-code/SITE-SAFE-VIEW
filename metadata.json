@@ -1,0 +1,8 @@
+{
+  "name": "Safe-View - Redes de Proteção Profissionais",
+  "description": "Especialista em instalação de redes de proteção de alto padrão. Segurança para crianças e pets com tecnologia ABNT e Inteligência Artificial.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
