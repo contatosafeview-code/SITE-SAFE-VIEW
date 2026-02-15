@@ -22,6 +22,7 @@ const Navbar: React.FC = () => {
               <a href="#features" className="hover:text-blue-400 transition-colors text-xs font-bold uppercase tracking-widest text-slate-300">Qualidade</a>
               <a href="#ai-lab" className="hover:text-blue-400 transition-colors text-xs font-bold uppercase tracking-widest text-slate-300">Simulador IA</a>
               <a href="#gallery" className="hover:text-blue-400 transition-colors text-xs font-bold uppercase tracking-widest text-slate-300">Galeria</a>
+              <a href="#faq" className="hover:text-blue-400 transition-colors text-xs font-bold uppercase tracking-widest text-slate-300">FAQ</a>
               <a href="#contact" className="hover:text-blue-400 transition-colors text-xs font-bold uppercase tracking-widest text-slate-300">Contato</a>
             </div>
           </div>

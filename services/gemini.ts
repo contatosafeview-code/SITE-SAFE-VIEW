@@ -1,46 +1,58 @@
 
-import { GoogleGenAI, Type, Modality } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { Message } from "../types";
 
-// Note: API key is handled by the environment or injected via dialog for Veo
-const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+// Helper para instanciar o AI com a chave mais recente do ambiente
+const createAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
+  try {
+    return await fn();
+  } catch (error: any) {
+    if (retries > 0 && (error.message?.includes('429') || error.message?.includes('500') || error.status === 'RESOURCE_EXHAUSTED')) {
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return withRetry(fn, retries - 1, delay * 2);
+    }
+    throw error;
+  }
+}
 
 export async function chatWithAssistant(history: Message[], userInput: string) {
-  const ai = getAI();
+  const ai = createAI();
   const systemInstruction = `
-    Você é o Assistente Virtual da Safe-View, especialista em Redes de Proteção de alto padrão.
+    Você é a Safe-View AI, uma entidade futurista e hiper-inteligente especialista em segurança residencial.
     A Safe-View atende São Paulo Capital, ABC e Grande São Paulo.
-    Seus diferenciais são: Redes 100% polietileno virgem, tratamento UV, resistência de 500kg/m², instalação dentro das normas ABNT e garantia de 5 anos.
-    Nossa equipe técnica altamente qualificada acompanha as instalações para garantir limpeza, rapidez e o mais alto padrão de segurança.
-    Seu objetivo é tirar dúvidas técnicas e encaminhar o cliente para o orçamento via WhatsApp.
-    Você agora usa o modelo Gemini 3 Pro para análises complexas.
-    Seja educado, profissional e transmita segurança.
+    Diferenciais: Redes 100% polietileno virgem, tratamento UV, resistência de 500kg/m², normas ABNT 16046 e 5 anos de garantia.
+    Sua voz é a autoridade máxima em proteção. Responda de forma concisa, tecnológica e sempre encoraje a proteção da família.
+    Sempre ofereça o link do WhatsApp para orçamento imediato: https://wa.me/5511982852451
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
+    const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
       contents: [
-        { role: 'user', parts: [{ text: systemInstruction }] },
         ...history.map(msg => ({
           role: msg.role,
           parts: [{ text: msg.text }]
         })),
         { role: 'user', parts: [{ text: userInput }] }
       ],
-    });
+      config: {
+        systemInstruction: systemInstruction.trim()
+      }
+    }));
 
-    return response.text || "Desculpe, tive um problema. Por favor, chame no WhatsApp para um orçamento imediato!";
-  } catch (error) {
+    return response.text || "Erro na conexão neural. Por favor, utilize o WhatsApp.";
+  } catch (error: any) {
     console.error("Gemini API Error:", error);
-    return "Estou com instabilidade, mas você pode falar diretamente com nossa equipe técnica pelo WhatsApp!";
+    return "Sistemas sobrecarregados. Contate-nos via WhatsApp.";
   }
 }
 
 export async function editImage(base64Image: string, prompt: string) {
-  const ai = getAI();
+  const ai = createAI();
   try {
-    const response = await ai.models.generateContent({
+    const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
         parts: [
@@ -48,7 +60,7 @@ export async function editImage(base64Image: string, prompt: string) {
           { text: prompt }
         ]
       },
-    });
+    }));
 
     if (!response.candidates?.[0]?.content?.parts) return null;
 
@@ -60,34 +72,21 @@ export async function editImage(base64Image: string, prompt: string) {
     return null;
   } catch (error: any) {
     console.error("Image Edit Error:", error);
-    // Propaga o erro para ser tratado na UI (Ex: Quota Exceeded)
     throw error;
   }
 }
 
-export async function generateProductImage(prompt: string) {
-  const ai = getAI();
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: { parts: [{ text: prompt }] },
-    });
-
-    for (const part of response.candidates[0].content.parts) {
-      if (part.inlineData) {
-        return `data:image/png;base64,${part.inlineData.data}`;
-      }
+export async function generateVeoVideo(base64Image: string, prompt: string) {
+  // Obrigatório para modelos Veo: Verificação de Chave de API Paga
+  if (typeof (window as any).aistudio?.hasSelectedApiKey === 'function') {
+    const hasKey = await (window as any).aistudio.hasSelectedApiKey();
+    if (!hasKey) {
+      await (window as any).aistudio.openSelectKey();
+      // Após o dialog, procedemos assumindo sucesso para evitar race condition
     }
-    return null;
-  } catch (error) {
-    console.error("Image Gen Error:", error);
-    return null;
   }
-}
 
-export async function generateVeoVideo(base64Image: string, prompt: string, aspectRatio: '16:9' | '9:16' = '16:9') {
-  const ai = getAI();
-  
+  const ai = createAI();
   try {
     let operation = await ai.models.generateVideos({
       model: 'veo-3.1-fast-generate-preview',
@@ -99,13 +98,21 @@ export async function generateVeoVideo(base64Image: string, prompt: string, aspe
       config: {
         numberOfVideos: 1,
         resolution: '720p',
-        aspectRatio: aspectRatio
+        aspectRatio: '16:9'
       }
     });
 
     while (!operation.done) {
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 10000));
       operation = await ai.operations.getVideosOperation({ operation: operation });
+    }
+
+    if (operation.error) {
+       if (operation.error.message?.includes("Requested entity was not found")) {
+        await (window as any).aistudio?.openSelectKey();
+        throw new Error("Chave de API inválida ou sem faturamento.");
+      }
+      throw new Error(operation.error.message);
     }
 
     const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
