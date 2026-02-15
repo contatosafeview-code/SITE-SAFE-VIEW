@@ -4,7 +4,7 @@ import { COMPANY_TAGLINE, SERVICE_REGION } from '../constants';
 
 const Hero: React.FC = () => {
   const openWhatsApp = () => {
-    window.open('https://wa.me/5511999999999?text=Olá! Vim pelo site e gostaria de um orçamento para redes de proteção.', '_blank');
+    window.open('https://wa.me/5511982852451?text=Olá! Vim pelo site e gostaria de um orçamento para redes de proteção.', '_blank');
   };
 
   return (
@@ -46,10 +46,10 @@ const Hero: React.FC = () => {
           </button>
           
           <a 
-            href="#dashboard"
+            href="#ai-lab"
             className="px-14 py-7 border border-slate-800 bg-slate-900/50 backdrop-blur-sm hover:bg-slate-800 text-white rounded-2xl font-bold text-xl transition-all"
           >
-            VER SERVIÇOS
+            VER SIMULADOR
           </a>
         </div>
 

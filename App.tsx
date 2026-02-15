@@ -12,7 +12,7 @@ import Footer from './components/Footer';
 
 const WhatsAppFloat = () => (
   <a 
-    href="https://wa.me/5511999999999" 
+    href="https://wa.me/5511982852451" 
     target="_blank" 
     rel="noopener noreferrer"
     className="fixed bottom-24 right-6 z-[60] bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group overflow-hidden animate-bounce"
@@ -74,7 +74,7 @@ const App: React.FC = () => {
                </div>
                
                <button 
-                onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+                onClick={() => window.open('https://wa.me/5511982852451', '_blank')}
                 className="bg-blue-600 hover:bg-blue-500 text-white px-16 py-8 rounded-[2rem] text-2xl font-black transition-all shadow-[0_30px_60px_rgba(37,99,235,0.4)] hover:-translate-y-2 active:scale-95"
               >
                  OBTER ORÇAMENTO AGORA

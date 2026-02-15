@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
           </div>
           <div>
             <a 
-              href="https://wa.me/5511999999999" 
+              href="https://wa.me/5511982852451" 
               target="_blank"
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-900/40"
             >

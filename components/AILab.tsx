@@ -159,7 +159,7 @@ const AILab: React.FC = () => {
                   <h4 className="text-2xl font-black text-white mb-4">DEMANDA ALTÍSSIMA!</h4>
                   <p className="text-slate-400 mb-8 max-w-md">Nossa IA está recebendo muitos pedidos agora. Que tal enviar sua foto para um técnico humano fazer o orçamento?</p>
                   <button 
-                    onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+                    onClick={() => window.open('https://wa.me/5511982852451', '_blank')}
                     className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs"
                   >
                     Falar com Especialista no WhatsApp
